@@ -10,6 +10,19 @@ import sys
 from tqdm import tqdm
 from timber_logger import TimberLogger
 
+
+def _copyfileobj_patched(fsrc, fdst, length=16 * 1024 * 1024):
+    """Patches shutil method to hugely improve copy speed"""
+    while 1:
+        buf = fsrc.read(length)
+        if not buf:
+            break
+        fdst.write(buf)
+
+
+shutil.copyfileobj = _copyfileobj_patched
+
+
 class TimberSync:
 
     def __init__(self):
@@ -235,7 +248,7 @@ class TimberSync:
             sys.exit(1)
 
         if not all(c in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-. "
-                           for c in self.destination.split("\\")[-1]):
+                   for c in self.destination.split("\\")[-1]):
             msg = "Invalid destination directory due to illegal characters. Exiting..."
             print(msg), self.logger.log(msg)
             sys.exit(1)
@@ -245,12 +258,12 @@ class TimberSync:
                 os.makedirs(self.destination)
                 self.new_destination = True
                 msg = "Destination directory %s was not found. Created the new folder successfully." \
-                        % self.destination
+                      % self.destination
                 print(msg), self.logger.log(msg)
             except OSError:
                 msg = "Could not create directory %s. " \
-                        "This may be because you do not have permission to create " \
-                        "directories in this location." % self.destination
+                      "This may be because you do not have permission to create " \
+                      "directories in this location." % self.destination
                 print(msg), self.logger.log(msg)
                 sys.exit(1)
 
@@ -293,8 +306,3 @@ class TimberSync:
               f"{new_dir_count} directories created | {deleted_dir_count} directories deleted\n"
         print(msg), self.logger.log(msg)
         print("See timber.log for additional details.")
-
-
-
-
-
