@@ -60,6 +60,7 @@ class TimberSync:
         self.files_to_copy.clear()
         new_count = 0
         updated_count = 0
+        file_size = 0
 
         print("Analyzing files for copying and updating...")
 
@@ -89,10 +90,20 @@ class TimberSync:
                     if source_time > destination_time or source_size != destination_size:
                         self.files_to_copy.add((source_file, destination_file, True))
                         updated_count += 1
+                        file_size += source_size
 
                 elif not os.path.exists(destination_file):
                     self.files_to_copy.add((source_file, destination_file, False))
                     new_count += 1
+                    file_size += os.path.getsize(source_file)
+
+        # reformat the file size to megabytes or gigabytes, whichever is appropriate
+        if file_size > 1000000000:
+            file_size = str(round(file_size / 1000000000, 2)) + " GB"
+        elif file_size > 1000000:
+            file_size = str(round(file_size / 1000000, 2)) + " MB"
+
+        print("Total file size to copy: %s" % file_size)
 
         # keep new and updated separate for now because it may be useful in the future
         return new_count + updated_count
@@ -195,6 +206,9 @@ class TimberSync:
 
     def file_delete(self, source, destination, ignored_directories):
         file_count = self.file_analyze_for_deletion(source, destination, ignored_directories)
+
+        if file_count == 0:
+            return 0, 0
 
         deleted_count = 0
         deleted_dir_count = 0
