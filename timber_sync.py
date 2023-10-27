@@ -3,6 +3,7 @@
 # Description: Module for the Timber file synchronization/backup functionality.
 
 import os
+import re
 import shutil
 import datetime
 import sys
@@ -11,8 +12,8 @@ from tqdm import tqdm
 from timber_logger import TimberLogger
 
 
+# Increase the buffer size for shutil.copyfileobj to improve copy speed
 def _copyfileobj_patched(fsrc, fdst, length=16 * 1024 * 1024):
-    """Patches shutil method to hugely improve copy speed"""
     while 1:
         buf = fsrc.read(length)
         if not buf:
@@ -298,6 +299,19 @@ class TimberSync:
             self.ignored_directories[i] = self.ignored_directories[i].replace("\\", "/")
         self.ignored_directories.append("$RECYCLE.BIN")
 
+    def update_dirname_datetime(self, source, new_destination_dirname):
+        # If the source directory contains YYYY-MMDD in the name,
+        # update the destination directory name to include the correct date.
+
+        # if the source contains regex YYYY-MMDD and destination does too
+        if re.search(r"\d{4}-\d{2}\d{2}", source) and re.search(r"\d{4}-\d{2}\d{2}", new_destination_dirname):
+            source_date = re.search(r"\d{4}-\d{2}\d{2}", source).group(0)
+            new_destination_dirname = re.sub(r"\d{4}-\d{2}\d{2}", source_date, new_destination_dirname)
+            # change the destination directory to the new destination name
+            os.rename(self.destination, new_destination_dirname)
+            msg = "Destination directory name updated to %s" % new_destination_dirname
+            print(msg), self.logger.log(msg)
+
     def sync(self, source, destination, ignored_directories, delete_preference):
 
         # check if the sync settings are valid and if so, set them
@@ -313,6 +327,9 @@ class TimberSync:
         else:
             deleted_count = 0
             deleted_dir_count = 0
+
+        # Update the destination file name with a new date, if appropriate
+        self.update_dirname_datetime(self.source, self.destination)
 
         # Print and log a summary of the sync
         msg = f"Sync complete.\n" \
