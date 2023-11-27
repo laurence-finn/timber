@@ -18,7 +18,7 @@ Timber is run from the command line using the following arguments:
 - '-s' : (Required) Sets the source destination directory. Example: 'C:\User\Test'. Works with network locations like '\\TESTCOMPUTER\Shared'.
 - '-d' : (Required) Sets the destination directory. 
 - '-x' : (Optional) Deletes any files or folders that are present in the destination directory but are not in the source. If this argument is not specified, the program will ignore these files and directories.
-- '-i' : (Optional) Sets a list of directories to ignore, separated by commas. Example: "TestDir,TestDir2,$RECYCLEBIN"
+- '-i' : (Optional) Sets a list of directories to ignore, separated by commas. Example: 'TestDir,TestDir2,$RECYCLEBIN'
 
 ## Ideas for New Features/Improvements
 - Add a progress bar for file analysis. (This is the task that determines which files will be copied or deleted.)
