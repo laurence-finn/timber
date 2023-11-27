@@ -7,6 +7,8 @@ A Python script that sychronizes files and directories in a destination (target)
 - Provides a progress bar showing the number of files remaining and the time elapsed.
 - Ignores directories specified by the user, allowing you to tailor your synchronization.
 - Logs all file operation details to timber.log so that you can check for errors and review statistics for the sync process.
+- Updates the destination directory name to the source name if the name includes the date (YYYY-MMDD).
+  -- For example, syncing a source "C:\Files 2022-0311" and destination "\\NETWORK\Share\Files 2021-0130" would change the destination name to "\\NETWORK\Share\Files 2022-0311".
 
 ## Installation
 This script requires Python 3.x to be installed on your system before running.
