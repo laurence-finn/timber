@@ -8,7 +8,7 @@ A Python script that sychronizes files and directories in a destination (target)
 - Ignores directories specified by the user, allowing you to tailor your synchronization.
 - Logs all file operation details to timber.log so that you can check for errors and review statistics for the sync process.
 - Updates the destination directory name to the source name if the name includes the date (YYYY-MMDD).
-  -- For example, syncing a source "C:\Files 2022-0311" and destination "\\NETWORK\Share\Files 2021-0130" would change the destination name to "\\NETWORK\Share\Files 2022-0311".
+    - For example, syncing a source "C:\Files 2022-0311" and destination "\\NETWORK\Share\Files 2021-0130" would change the destination name to "\\NETWORK\Share\Files 2022-0311".
 
 ## Installation
 This script requires Python 3.x to be installed on your system before running.
@@ -27,6 +27,6 @@ Timber is run from the command line using the following arguments:
 - Add sync for OneDrive and Google Drive.
 - Optimize performance/file copy speed by calling the Windows API or Linux equivalent. (https://stackoverflow.com/questions/12330522/how-to-copy-a-file-in-python)
 - Add an "advanced sync" feature with extra options.
--- Add advanced duplicate protection: If an identical file is found in the destination folder, the user can choose to keep the original, the duplicate, or both. Additionally, if deleting duplicates creates empty folders, the user can choose to delete the empty folders.
+    - Add advanced duplicate protection: If an identical file is found in the destination folder, the user can choose to keep the original, the duplicate, or both. Additionally, if deleting duplicates creates empty folders, the user can choose to delete the empty folders.
 - Separate log files for each run.
--- Possibly add a log management feature to delete old logs.
+    - Possibly add a log management feature to delete old logs.
