@@ -85,6 +85,10 @@ class TimberSync:
                         destination_time = datetime.datetime.fromtimestamp(os.path.getmtime(destination_file))
                         source_size = os.path.getsize(source_file)
                         destination_size = os.path.getsize(destination_file)
+                    except FileNotFoundError:
+                        self.logger.log("Error: The file %s was not found for analysis, even though it was"
+                                        "found when walking the directory. Skipping." % source_file)
+                        continue
                     except PermissionError:
                         self.logger.log("Permission denied. Skipping %s" % destination_file)
                         continue
@@ -175,7 +179,8 @@ class TimberSync:
                         os.makedirs(destination_dir)
                         new_dir_count += 1
                     except PermissionError:
-                        self.logger.log("Permission denied. Skipping %s" % destination_dir)
+                        self.logger.log("Permission denied when trying to create directory %s. Skipping..."
+                                        % destination_dir)
                         continue
 
                 # while the file isn't created or updated properly (due to corruption), keep trying
@@ -189,7 +194,8 @@ class TimberSync:
                             shutil.copy2(source_file, destination_file)
                             updated_count += 1
                         except PermissionError:
-                            self.logger.log("Permission denied. Skipping %s" % destination_file)
+                            self.logger.log("Permission denied when trying to delete then copy %s. Skipping..."
+                                            % destination_file)
 
                     # if the file doesn't exist, copy it
                     elif not exists:
@@ -198,7 +204,8 @@ class TimberSync:
                             shutil.copy(source_file, destination_file)
                             new_count += 1
                         except PermissionError:
-                            self.logger.log("Permission denied. Skipping %s" % destination_file)
+                            self.logger.log("Permission denied when trying to copy file. Skipping %s"
+                                            % destination_file)
                     if self.check_corrupt(source_file, destination_file):
                         continue
                     else:
@@ -226,7 +233,7 @@ class TimberSync:
                     os.remove(destination_file)
                     deleted_count += 1
                 except PermissionError:
-                    self.logger.log("Permission denied. Skipping %s" % destination_file)
+                    self.logger.log("Permission denied when trying to delete file. Skipping %s" % destination_file)
 
                 pbar.update(1)
 
@@ -311,9 +318,14 @@ class TimberSync:
             source_date = re.search(r"\d{4}-\d{2}\d{2}", source).group(0)
             new_destination_dirname = re.sub(r"\d{4}-\d{2}\d{2}", source_date, new_destination_dirname)
             # change the destination directory to the new destination name
-            os.rename(self.destination, new_destination_dirname)
-            msg = "Destination directory name updated to %s" % new_destination_dirname
-            print(msg), self.logger.log(msg)
+            try:
+                os.rename(self.destination, new_destination_dirname)
+                msg = "Destination directory name updated to %s" % new_destination_dirname
+                print(msg), self.logger.log(msg)
+            except PermissionError:
+                msg = "Could not update destination directory name with the new date and time. " \
+                      "This may be because you do not have permission to rename directories in this location."
+                print(msg), self.logger.log(msg)
 
     def sync(self, source, destination, ignored_directories, delete_preference):
 
