@@ -96,7 +96,10 @@ class TimberSync:
                 elif not os.path.exists(destination_file):
                     self.files_to_copy.add((source_file, destination_file, False))
                     new_count += 1
-                    file_size += os.path.getsize(source_file)
+                    try:
+                        file_size += os.path.getsize(source_file)
+                    except FileNotFoundError:
+                        self.logger.log("Error getting file size for %s. Skipping." % source_file)
 
         # reformat the file size to megabytes or gigabytes, whichever is appropriate
         if file_size > 1000000000:
