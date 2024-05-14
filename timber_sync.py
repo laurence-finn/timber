@@ -352,3 +352,6 @@ class TimberSync:
               f"{new_dir_count} directories created | {deleted_dir_count} directories deleted\n"
         print(msg), self.logger.log(msg)
         print("See timber.log for additional details.")
+
+        # Close the logger
+        self.logger.close_log()

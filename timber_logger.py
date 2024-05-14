@@ -12,3 +12,8 @@ class TimberLogger:
 
     def log(self, message):
         self.logger.info(message)
+
+    def close_log(self):
+        for handler in self.logger.handlers:
+            handler.close()
+        self.logger.handlers = []
