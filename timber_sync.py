@@ -14,7 +14,7 @@ from timber_logger import TimberLogger
 
 # Increase the buffer size for shutil.copyfileobj to improve copy speed
 def _copyfileobj_patched(fsrc, fdst, length=16 * 1024 * 1024):
-    while 1:
+    while True:
         buf = fsrc.read(length)
         if not buf:
             break
@@ -46,12 +46,14 @@ class TimberSync:
         try:
             if os.path.getsize(destination_file) < os.path.getsize(source_file):
                 self.logger.log("File %s is corrupt. Deleting and retrying copy." % destination_file)
+                print("File %s is corrupt. Deleting and retrying copy." % destination_file)
                 os.remove(destination_file)
                 return True
             else:
                 return False
         except FileNotFoundError:
             self.logger.log("Error checking file %s. Skipping." % destination_file)
+            print("Error checking file %s. Skipping." % destination_file)
             return False
 
     def file_analyze_for_copy_update(self, source, destination, ignored_directories):
@@ -88,9 +90,12 @@ class TimberSync:
                     except FileNotFoundError:
                         self.logger.log("Error: The file %s was not found for analysis, even though it was"
                                         "found when walking the directory. Skipping." % source_file)
+                        print("Error: The file %s was not found for analysis, even though it was"
+                              "found when walking the directory. Skipping." % source_file)
                         continue
                     except PermissionError:
                         self.logger.log("Permission denied. Skipping %s" % destination_file)
+                        print("Permission denied. Skipping %s" % destination_file)
                         continue
                     if source_time > destination_time or source_size != destination_size:
                         self.files_to_copy.add((source_file, destination_file, True))
@@ -98,12 +103,18 @@ class TimberSync:
                         file_size += source_size
 
                 elif not os.path.exists(destination_file):
-                    self.files_to_copy.add((source_file, destination_file, False))
-                    new_count += 1
+                    # Try to get the file size first. If that fails, do not add the file to the copy list.
+                    # This could indicate the file was moved or a permission error occurred.
                     try:
                         file_size += os.path.getsize(source_file)
+                        self.files_to_copy.add((source_file, destination_file, False))
+                        new_count += 1
                     except FileNotFoundError:
                         self.logger.log("Error getting file size for %s. Skipping." % source_file)
+                        print("Error getting file size for %s. Skipping." % source_file)
+                    except PermissionError:
+                        self.logger.log("Permission denied. Skipping %s" % source_file)
+                        print("Permission denied. Skipping %s" % source_file)
 
         # reformat the file size to megabytes or gigabytes, whichever is appropriate
         if file_size > 1000000000:
@@ -183,8 +194,13 @@ class TimberSync:
                                         % destination_dir)
                         continue
 
-                # while the file isn't created or updated properly (due to corruption), keep trying
+                # while the file isn't created or updated properly (due to corruption), try three times
+                while_count = 0
                 while True:
+                    while_count += 1
+                    if while_count > 3:
+                        break
+
                     # if the file already exists, update it
                     if exists:
                         self.logger.log("Updating %s" % destination_file)
@@ -234,6 +250,7 @@ class TimberSync:
                     deleted_count += 1
                 except PermissionError:
                     self.logger.log("Permission denied when trying to delete file. Skipping %s" % destination_file)
+                    print("Permission denied when trying to delete file. Skipping %s" % destination_file)
 
                 pbar.update(1)
 
@@ -247,6 +264,7 @@ class TimberSync:
                 deleted_dir_count += 1
             except OSError:
                 self.logger.log("Could not delete %s." % destination_dir)
+                print("Could not delete %s." % destination_dir)
                 continue
 
         return deleted_count, deleted_dir_count
