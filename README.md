@@ -2,8 +2,8 @@
 A Python script that sychronizes files and directories in a destination (target) directory with a source (original) directory. This is useful for ensuring backups are synchronized on your local machine, external hard drive, or a network drive. I personally run this script weekly to sychronize my external "WD Book" hard drive with the important folders on my computer to ensure I have an updated backup.
 
 ## Features
-- Sychronizes a destination with a source by copying new or updated files and optionally deleting files that aren't present in the source.
-- Allows transfer across network locations.
+- Synchronizes a destination with a source by copying new or updated files and optionally deleting files that aren't present in the source.
+- Allows transfer across local network locations. (Example: \\TESTSERVER\Share\Files_To_Sync)
 - Provides a progress bar showing the number of files remaining and the time elapsed.
 - Ignores directories specified by the user, allowing you to tailor your synchronization.
 - Logs all file operation details to timber.log so that you can check for errors and review statistics for the sync process.
@@ -14,6 +14,8 @@ A Python script that sychronizes files and directories in a destination (target)
 This script requires Python 3.x to be installed on your system before running.
 
 Once Python is installed, run the script in the terminal, using the command line arguments listed below.
+
+Alternately, you can run the latest release .EXE from the Releases tab in GitHub.
 
 ## Usage
 Timber is run from the command line using the following arguments:
