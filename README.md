@@ -25,6 +25,7 @@ Timber is run from the command line using the following arguments:
 - '-i' : (Optional) Sets a list of directories to ignore, separated by commas. Example: 'TestDir,TestDir2,$RECYCLEBIN'
 
 ## Ideas for New Features/Improvements
+- Check for free space on the destination disk before syncing. (Possibly reorganize the program so deleting happens first, then disk space check, then copying new/updated files)
 - Add a progress bar for file analysis. (This is the task that determines which files will be copied or deleted.)
 - Add sync for OneDrive and Google Drive.
 - Optimize performance/file copy speed by calling the Windows API or Linux equivalent. (https://stackoverflow.com/questions/12330522/how-to-copy-a-file-in-python)
